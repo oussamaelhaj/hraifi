@@ -23,7 +23,6 @@ services:
     name: hraifi-frontend
     runtime: static
     rootDir: frontend
-    plan: free
     buildCommand: ""
     staticPublishPath: .
     routes:
