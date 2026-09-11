@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment secrets — never commit real credentials
+.env
+.env.local
+backend/.env
+
+# Legacy pre-restructure file, kept locally for reference only
+hraificode.html
+
+# Local dev tooling artifacts
+scripts/node_modules/
+scripts/package-lock.json
+scripts/screenshot-*.png
+scripts/*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+*.log

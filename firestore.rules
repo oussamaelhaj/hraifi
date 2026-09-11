@@ -1,0 +1,112 @@
+rules_version = '2';
+
+// Firestore security rules for منصة الحريفي (7raifi.ma).
+//
+// This is the real access-control boundary for the app. The client-side JS
+// (frontend/js/auth.js) decides what UI to show based on a `role` field and a
+// small bootstrap allowlist, but none of that is trustworthy on its own —
+// anyone can open devtools and call db.collection('users').doc(uid).update({role:'admin'})
+// directly. These rules are what actually stop that.
+//
+// Admin privilege is granted two ways:
+//   1. A Firebase custom claim `admin: true`, set server-side by backend/routes/admin.js
+//      using the Firebase Admin SDK (a service account, never exposed to the client).
+//   2. The one-time bootstrap allowlist below (OWNER_BOOTSTRAP_ADMIN_UIDS), which lets
+//      the platform owner's own account self-promote in Firestore even before any
+//      custom claim has been set. Once the backend is deployed and has set the claim
+//      for the owner, this list is no longer needed and can be emptied.
+//
+// Deploy with: firebase deploy --only firestore:rules
+
+function isSignedIn() {
+  return request.auth != null;
+}
+
+function isOwner(uid) {
+  return isSignedIn() && request.auth.uid == uid;
+}
+
+function hasAdminClaim() {
+  return isSignedIn() && request.auth.token.admin == true;
+}
+
+function isBootstrapAdminUid() {
+  // Keep in sync with OWNER_BOOTSTRAP_ADMIN_UIDS in frontend/js/state.js.
+  return isSignedIn() && request.auth.uid in [
+    'sbXqhfW1v5SSHOp1cZ51RIPoKeI3',
+    '1xcBa6WHtkWScdA14n91XngePC43',
+    'NsntxK3SlvPKpyLdosr0bQR9f5U2'
+  ];
+}
+
+function isAdmin() {
+  return hasAdminClaim() || isBootstrapAdminUid();
+}
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── users/{uid} ──────────────────────────────────────────────────────
+    // Anyone signed in can read/create their own profile. Only an admin (via
+    // custom claim or the bootstrap allowlist) can write role: 'admin' onto
+    // ANY document — including a user's own — which is the fix for the
+    // client-side privilege-escalation hole.
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) &&
+        (request.resource.data.role == 'customer' || isAdmin());
+      allow update: if isAdmin() ||
+        (isOwner(uid) &&
+         request.resource.data.role == resource.data.role); // can't touch own role
+      allow delete: if isAdmin();
+    }
+
+    // ── artisans/{id} ────────────────────────────────────────────────────
+    // Public directory: anyone can read. Only admins can create/verify/
+    // delete/feature an artisan. A signed-in user may ONLY update rating and
+    // ratingCount (the review-aggregation write in frontend/js/reviews.js) —
+    // every other field is locked to admin-only.
+    match /artisans/{id} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() ||
+        (isSignedIn() &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['rating', 'ratingCount']));
+    }
+
+    // ── requests/{id} ────────────────────────────────────────────────────
+    // Artisan join requests. The public registration form allows anonymous
+    // submission, so create must stay open, but only an admin may read the
+    // queue or change status (approve/reject).
+    match /requests/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── clientRequests/{id} ──────────────────────────────────────────────
+    // Customer service requests. Public create (same as requests). Once
+    // approved, any signed-in user (artisans browsing the board) can read it;
+    // admins can read everything and change status.
+    match /clientRequests/{id} {
+      allow create: if true;
+      allow read: if isAdmin() || (isSignedIn() && resource.data.status == 'approved');
+      allow update, delete: if isAdmin();
+    }
+
+    // ── ratings/{id} ─────────────────────────────────────────────────────
+    // Reviews are public to read (shown on artisan cards). Only a signed-in
+    // user can create one, and only tagged with their own uid — no editing
+    // someone else's review, no impersonation.
+    match /ratings/{id} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Default deny for anything not explicitly matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

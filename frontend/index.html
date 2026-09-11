@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>منصة الحريفي المغربي - النظام المتكامل</title>
+
+  <!--
+    Content-Security-Policy: restricts which hosts scripts/styles/connections
+    may come from. `unsafe-inline` on script-src is kept because the UI relies
+    on inline onclick="..." handlers throughout (see frontend/js/*.js) — removing
+    it would require rebinding every handler via addEventListener first. The
+    real fix for injected-script XSS is the escapeHTML()/escapeAttr() calls in
+    frontend/js/security-utils.js; this header is a second layer on top of that,
+    mainly to stop arbitrary third-party <script src> injection.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    base-uri 'self';
+    object-src 'none';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://*.google.com https://www.gstatic.com https://*.gstatic.com https://www.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.ampproject.org https://*.ampproject.org https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.adtrafficquality.google;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    img-src 'self' data: https:;
+    connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://*.googlesyndication.com https://*.doubleclick.net https://*.adtrafficquality.google https://hraifi-backend.onrender.com http://localhost:3000;
+    frame-src https://www.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.ampproject.org https://*.adtrafficquality.google;
+  ">
+
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="منصة الحريفي المغربي هي وجهتك الأولى للعثور على أفضل الحرفيين المعتمدين في المغرب. سباك، كهربائي، نجار، والمزيد بخدمات سريعة وجودة مضمونة." />
+  <meta name="keywords" content="حرفي, المغرب, صنايعي, سباك, كهربائي, نجار, صباغ, خدمات منزلية, منصة الحريفي, 7raifi" />
+  <meta name="author" content="منصة الحريفي" />
+  <meta name="robots" content="index, follow" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.7raifi.ma/" />
+  <meta property="og:title" content="منصة الحريفي المغربي - النظام المتكامل" />
+  <meta property="og:description"
+    content="ابحث عن أفضل الحرفيين المعتمدين في المغرب وتواصل معهم مباشرة بسهولة وأمان." />
+  <meta property="og:image" content="https://i.pinimg.com/1200x/d9/73/7e/d9737e959b85b4ad2dab1af348d53f42.jpg" />
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://www.7raifi.ma/" />
+  <meta property="twitter:title" content="منصة الحريفي المغربي" />
+  <meta property="twitter:description"
+    content="ابحث عن أفضل الحرفيين المعتمدين في المغرب وتواصل معهم مباشرة بسهولة وأمان." />
+  <meta property="twitter:image" content="https://i.pinimg.com/1200x/d9/73/7e/d9737e959b85b4ad2dab1af348d53f42.jpg" />
+
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&amp;display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Google reCAPTCHA Enterprise -->
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lfxfc4rAAAAALHN0wxia_0MMBT2S8Ox8Q4QjEc-"></script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-N7JGX6BT20"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-N7JGX6BT20');
+  </script>
+
+  <!-- Firebase SDK Compat v9.22.0 -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+
+  <!-- PDF & Excel Generators -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- AdSense & AMP Ads -->
+  <script async="async" custom-element="amp-auto-ads" src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js"></script>
+  <script async="async"
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2167865407816280"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+  <div id="site-preloader">
+    <div class="preloader-content">
+      <div class="artisan-animation">
+        <i class="fas fa-tools spinning-tool"></i>
+        <i class="fas fa-hard-hat bouncing-hat"></i>
+      </div>
+      <h2 style="margin: 0; font-weight: 900; font-size: 2rem;">منصة الحريفي</h2>
+      <p style="margin: 0; color: rgba(255,255,255,0.7); font-size: 1.1rem;">جاري تجهيز المنصة...</p>
+      <div class="loading-bar">
+        <div class="loading-progress"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── 1. LANDING PAGE (Public - visible without login) ─────────────────────── -->
+  <div id="auth-blocker">
+
+    <!-- ══ LANDING PAGE NAVBAR ════════════════════════════════════════════════ -->
+    <nav id="landing-nav" style="
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    background: rgba(11, 18, 31, 0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(245,158,11,0.15);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    font-family: 'Cairo', 'Segoe UI', sans-serif;
+  ">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div
+          style="width:38px; height:38px; background:linear-gradient(135deg,#1E3A5F,#2563EB); border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(37,99,235,0.5);">
+          <i class="fas fa-tools" style="color:#F59E0B; font-size:16px;"></i>
+        </div>
+        <span style="font-size:1.15rem; font-weight:900; color:#fff; letter-spacing:0.5px;">منصة الحريفي</span>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button onclick="showAuthModal('login')" style="
+        padding: 8px 20px; border-radius: 10px;
+        border: 1.5px solid rgba(255,255,255,0.25);
+        background: transparent; color: #fff;
+        font-size: 0.9rem; font-weight: 700; cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        transition: all 0.2s;
+      " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+          <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+        </button>
+        <button onclick="showAuthModal('register')" style="
+        padding: 8px 22px; border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #F59E0B, #D97706);
+        color: #0b121f; font-size: 0.9rem; font-weight: 900;
+        cursor: pointer; font-family: 'Cairo', sans-serif;
+        box-shadow: 0 4px 14px rgba(245,158,11,0.4);
+        transition: all 0.2s;
+      " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          <i class="fas fa-user-plus"></i> إنشاء حساب
+        </button>
+      </div>
+    </nav>
+
+    <!-- ══ HERO SLIDER SECTION ════════════════════════════════════════════════ -->
+    <section id="landing-hero" style="position:relative; height:100vh; min-height:600px; overflow:hidden;">
+
+      <!-- Slides -->
+      <div id="hero-slides" style="position:absolute; inset:0;">
+        <div class="lp-slide active-slide"
+          style="background-image:url('https://i.pinimg.com/1200x/d9/73/7e/d9737e959b85b4ad2dab1af348d53f42.jpg');">
+        </div>
+        <div class="lp-slide"
+          style="background-image:url('https://i.pinimg.com/1200x/9b/a6/63/9ba66308c769be13c54c16d3ec014659.jpg');">
+        </div>
+        <div class="lp-slide"
+          style="background-image:url('https://i.pinimg.com/1200x/b1/13/f8/b113f8d0ebe8193500194c8c311ea42b.jpg');">
+        </div>
+        <div class="lp-slide"
+          style="background-image:url('https://i.pinimg.com/1200x/90/bd/64/90bd6432aafd43ad56120cca165e59c5.jpg');">
+        </div>
+        <div class="lp-slide"
+          style="background-image:url('https://i.pinimg.com/1200x/78/05/5a/78055a84da648bbc7d2cc7abd26bae42.jpg');">
+        </div>
+      </div>
+
+      <!-- Dark gradient overlay -->
+      <div
+        style="position:absolute; inset:0; background:linear-gradient(to bottom, rgba(11,18,31,0.55) 0%, rgba(11,18,31,0.75) 100%); z-index:2;">
+      </div>
+
+      <!-- Hero Content -->
+      <div style="
+      position:relative; z-index:3;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      height:100%; text-align:center;
+      padding: 100px 20px 60px;
+      font-family: 'Cairo', 'Segoe UI', sans-serif;
+    ">
+        <div style="
+        display:inline-flex; align-items:center; gap:8px;
+        background:rgba(245,158,11,0.15);
+        border:1px solid rgba(245,158,11,0.5);
+        border-radius:30px; padding:6px 18px; margin-bottom:24px;
+      ">
+          <i class="fas fa-star" style="color:#F59E0B; font-size:12px;"></i>
+          <span style="color:#FBBF24; font-size:0.85rem; font-weight:700;">أكثر من 500 حرفي معتمد في المغرب</span>
+          <i class="fas fa-star" style="color:#F59E0B; font-size:12px;"></i>
+        </div>
+
+        <h1 style="
+        font-size: clamp(2.2rem, 6vw, 4rem);
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.2;
+        margin-bottom: 16px;
+        text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+      ">منصة <span style="color:#F59E0B;">الحريفي</span> - أفضل الحرفيين المعتمدين في المغرب</h1>
+
+        <p style="
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        color: rgba(255,255,255,0.85);
+        margin-bottom: 12px;
+        max-width: 600px;
+        line-height: 1.7;
+      ">الحريفي ديالك، قريب ليك — ابحث عن أفضل الحرفيين المعتمدين في مدينتك بكل سهولة وأمان</p>
+
+        <p style="font-size:0.95rem; color:rgba(255,255,255,0.5); margin-bottom:36px;">سباك · كهربائي · نجار · دهان ·
+          تكييف · وأكثر...</p>
+
+        <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+          <button onclick="showAuthModal('register')" style="
+          padding: 15px 36px; border-radius: 14px;
+          background: linear-gradient(135deg, #F59E0B, #D97706);
+          color: #0b121f; font-size: 1.05rem; font-weight: 900;
+          border: none; cursor: pointer;
+          font-family: 'Cairo', sans-serif;
+          box-shadow: 0 8px 24px rgba(245,158,11,0.5);
+          transition: all 0.25s;
+        " onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(245,158,11,0.6)'"
+            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 24px rgba(245,158,11,0.5)'">
+            <i class="fas fa-search"></i> ابدأ البحث الآن
+          </button>
+          <button onclick="scrollToSection('how-it-works')" style="
+          padding: 15px 32px; border-radius: 14px;
+          background: rgba(255,255,255,0.1);
+          color: #fff; font-size: 1.05rem; font-weight: 700;
+          border: 1.5px solid rgba(255,255,255,0.3); cursor: pointer;
+          font-family: 'Cairo', sans-serif;
+          backdrop-filter: blur(8px);
+          transition: all 0.25s;
+        " onmouseover="this.style.background='rgba(255,255,255,0.18)'"
+            onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+            <i class="fas fa-play-circle"></i> كيف يعمل؟
+          </button>
+        </div>
+      </div>
+
+      <!-- Slide Dots -->
+      <div
+        style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); z-index:4; display:flex; gap:8px;"
+        id="hero-dots">
+        <span class="lp-dot active-dot" onclick="goToSlide(0)"></span>
+        <span class="lp-dot" onclick="goToSlide(1)"></span>
+        <span class="lp-dot" onclick="goToSlide(2)"></span>
+        <span class="lp-dot" onclick="goToSlide(3)"></span>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div
+        style="position:absolute; bottom:65px; left:50%; transform:translateX(-50%); z-index:4; animation: bounce 1.8s infinite;"
+        onclick="scrollToSection('features-section')">
+        <i class="fas fa-chevron-down" style="color:rgba(255,255,255,0.5); font-size:1.4rem; cursor:pointer;"></i>
+      </div>
+    </section>
+
+    <!-- ══ STATS BAR ═══════════════════════════════════════════════════════════ -->
+    <section style="
+    background:linear-gradient(135deg,#1E3A5F 0%,#0b121f 100%);
+    padding: 28px 20px;
+    border-top: 1px solid rgba(245,158,11,0.2);
+    border-bottom: 1px solid rgba(245,158,11,0.2);
+  ">
+      <div
+        style="max-width:900px; margin:0 auto; display:flex; justify-content:space-around; flex-wrap:wrap; gap:20px; font-family:'Cairo',sans-serif; text-align:center;">
+        <div>
+          <div style="font-size:2rem; font-weight:900; color:#F59E0B;">+500</div>
+          <div style="color:rgba(255,255,255,0.65); font-size:0.9rem;">حرفي معتمد</div>
+        </div>
+        <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+        <div>
+          <div style="font-size:2rem; font-weight:900; color:#F59E0B;">11</div>
+          <div style="color:rgba(255,255,255,0.65); font-size:0.9rem;">مدينة مغربية</div>
+        </div>
+        <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+        <div>
+          <div style="font-size:2rem; font-weight:900; color:#F59E0B;">+15</div>
+          <div style="color:rgba(255,255,255,0.65); font-size:0.9rem;">تخصص حرفي</div>
+        </div>
+        <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+        <div>
+          <div style="font-size:2rem; font-weight:900; color:#F59E0B;">★ 4.9</div>
+          <div style="color:rgba(255,255,255,0.65); font-size:0.9rem;">تقييم المستخدمين</div>
+
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ IDEAS GALLERY (New Section) ══════════════════════════════════════════ -->
+    <section class="reveal"
+      style="padding: 80px 20px; background: #0b121f; font-family:'Cairo',sans-serif; text-align:center;">
+      <div style="max-width:1200px; margin:0 auto;">
+        <div
+          style="color:#F59E0B; font-size:0.85rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">
+          <i class="fas fa-lightbulb"></i> إلهام وأفكار
+        </div>
+        <h2 style="font-size:2rem; font-weight:900; color:#fff; margin-bottom:12px;">مساحات تلهمك</h2>
+        <p
+          style="color:rgba(255,255,255,0.5); margin-bottom:56px; max-width:600px; margin-left:auto; margin-right:auto;">
+          اكتشف أحدث صيحات التصميم والديكور، ودع حرفيينا يحولون هذه الأفكار إلى واقع ملموس في منزلك.
+        </p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:24px;">
+          <!-- Idea 1 -->
+          <div class="idea-card">
+            <img src="https://i.pinimg.com/1200x/d4/cd/f0/d4cdf011aaa16934cb3f6fbdd2c69b7d.jpg" class="idea-img"
+              alt="ديكور صالون" />
+            <div class="idea-overlay">
+              <h3 style="color:#fff; font-size:1.2rem; font-weight:800; margin-bottom:4px; text-align:right;">ديكورات
+                خشبية عصرية</h3>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.85rem; text-align:right;">نفذها نجار محترف</p>
+            </div>
+          </div>
+          <!-- Idea 2 -->
+          <div class="idea-card">
+            <img src="https://i.pinimg.com/736x/18/ba/b6/18bab69731cf54b74bd73f689c00c9ff.jpg" class="idea-img"
+              alt="أفكار صباغة" />
+            <div class="idea-overlay">
+              <h3 style="color:#fff; font-size:1.2rem; font-weight:800; margin-bottom:4px; text-align:right;">ألوان
+                هادئة وجذابة</h3>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.85rem; text-align:right;">اطلب صباغاً الآن</p>
+            </div>
+          </div>
+          <!-- Idea 3 -->
+          <div class="idea-card">
+            <img src="https://i.pinimg.com/736x/ae/63/52/ae6352baf48974f35a5527d4615a29e1.jpg" class="idea-img"
+              alt="إضاءة" />
+            <div class="idea-overlay">
+              <h3 style="color:#fff; font-size:1.2rem; font-weight:800; margin-bottom:4px; text-align:right;">إضاءة
+                مخفية ذكية</h3>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.85rem; text-align:right;">متخصصون في الكهرباء</p>
+            </div>
+          </div>
+          <!-- Idea 4 -->
+          <div class="idea-card">
+            <img src="https://i.pinimg.com/736x/fe/fa/13/fefa13c9fbffecc8310080fbb6a05e8d.jpg" class="idea-img"
+              alt="أعمال بناء" />
+            <div class="idea-overlay">
+              <h3 style="color:#fff; font-size:1.2rem; font-weight:800; margin-bottom:4px; text-align:right;">تجديد
+                الحمامات</h3>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.85rem; text-align:right;">سباكون وزلايجية</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ HOW IT WORKS SECTION ═══════════════════════════════════════════════ -->
+    <section id="how-it-works" class="reveal" style="
+    background: linear-gradient(to bottom, #0b121f, #152238); padding: 80px 20px;
+    font-family: 'Cairo', 'Segoe UI', sans-serif; text-align:center;
+  ">
+      <div style="max-width:900px; margin:0 auto;">
+        <div
+          style="color:#F59E0B; font-size:0.85rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">
+          <i class="fas fa-map-signs"></i> دليل الاستخدام
+        </div>
+        <h2 style="font-size:2rem; font-weight:900; color:#fff; margin-bottom:12px;">كيف تعمل المنصة؟</h2>
+        <p style="color:rgba(255,255,255,0.5); margin-bottom:56px;">3 خطوات بسيطة للحصول على الحرفي المناسب لتنفيذ
+          أفكارك</p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:28px;">
+
+          <div class="reveal"
+            style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:32px 24px; position:relative; transition:transform 0.3s;"
+            onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div
+              style="width:56px; height:56px; background:linear-gradient(135deg,#1E3A5F,#2563EB); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 8px 24px rgba(37,99,235,0.3);">
+              <i class="fas fa-user-plus" style="color:#fff; font-size:22px;"></i>
+            </div>
+            <div
+              style="position:absolute; top:20px; right:20px; width:30px; height:30px; border-radius:50%; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:900; color:#F59E0B;">
+              1</div>
+            <h3 style="font-size:1.15rem; font-weight:800; color:#fff; margin-bottom:10px;">أنشئ حسابك</h3>
+            <p style="color:rgba(255,255,255,0.55); font-size:0.9rem; line-height:1.7;">سجّل مجاناً كزبون أو حرفي. الأمر
+              يستغرق دقيقة واحدة فقط!</p>
+          </div>
+
+          <div class="reveal"
+            style="transition-delay: 100ms; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:32px 24px; position:relative; transition:transform 0.3s;"
+            onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div
+              style="width:56px; height:56px; background:linear-gradient(135deg,#F59E0B,#D97706); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 8px 24px rgba(245,158,11,0.3);">
+              <i class="fas fa-search" style="color:#0b121f; font-size:22px;"></i>
+            </div>
+            <div
+              style="position:absolute; top:20px; right:20px; width:30px; height:30px; border-radius:50%; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:900; color:#F59E0B;">
+              2</div>
+            <h3 style="font-size:1.15rem; font-weight:800; color:#fff; margin-bottom:10px;">ابحث عن حرفي</h3>
+            <p style="color:rgba(255,255,255,0.55); font-size:0.9rem; line-height:1.7;">ابحث حسب التخصص والمدينة، وشاهد
+              التقييمات الحقيقية من عملاء سابقين.</p>
+          </div>
+
+          <div class="reveal"
+            style="transition-delay: 200ms; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:32px 24px; position:relative; transition:transform 0.3s;"
+            onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div
+              style="width:56px; height:56px; background:linear-gradient(135deg,#10B981,#059669); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 8px 24px rgba(16,185,129,0.3);">
+              <i class="fas fa-handshake" style="color:#fff; font-size:22px;"></i>
+            </div>
+            <div
+              style="position:absolute; top:20px; right:20px; width:30px; height:30px; border-radius:50%; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:900; color:#F59E0B;">
+              3</div>
+            <h3 style="font-size:1.15rem; font-weight:800; color:#fff; margin-bottom:10px;">تواصل وانجز</h3>
+            <p style="color:rgba(255,255,255,0.55); font-size:0.9rem; line-height:1.7;">تواصل مباشرة مع الحرفي، أرسل
+              طلبك، وقيّمه بعد إتمام العمل.</p>
+          </div>
+
+        </div>
+
+        <div class="reveal"
+          style="margin-top:50px; padding:24px; background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.2); border-radius:16px; color:rgba(255,255,255,0.7); font-size:0.95rem; line-height:1.8;">
+          <i class="fas fa-info-circle" style="color:#F59E0B;"></i>
+          <strong style="color:#F59E0B;"> للاستفادة من المنصة</strong> (بحث، تواصل، طلبات)، يلزمك تسجيل الدخول أو إنشاء
+          حساب مجاني. التصفح والمعلومات العامة متاحة للجميع.
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FEATURES SECTION ═══════════════════════════════════════════════════ -->
+    <section id="features-section" style="
+    background: linear-gradient(180deg, #0b121f 0%, #0f1a2e 100%);
+    padding: 80px 20px;
+    font-family: 'Cairo', 'Segoe UI', sans-serif;
+  ">
+      <div style="max-width:960px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:56px;">
+          <div style="color:#F59E0B; font-size:0.85rem; font-weight:700; letter-spacing:2px; margin-bottom:10px;">
+            <i class="fas fa-star"></i> لماذا الحريفي؟
+          </div>
+          <h2 style="font-size:2rem; font-weight:900; color:#fff; margin-bottom:12px;">مميزات المنصة</h2>
+          <p style="color:rgba(255,255,255,0.5);">كل ما تحتاجه في مكان واحد</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px;">
+          <div
+            style="display:flex; align-items:flex-start; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+            <div
+              style="width:44px; height:44px; min-width:44px; background:rgba(16,185,129,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <i class="fas fa-shield-alt" style="color:#10B981;"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px;">حرفيون معتمدون</h4>
+              <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.6;">جميع الحرفيين موثقون ومراجعون
+                من فريقنا.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex; align-items:flex-start; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+            <div
+              style="width:44px; height:44px; min-width:44px; background:rgba(37,99,235,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <i class="fas fa-bolt" style="color:#2563EB;"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px;">خدمة سريعة</h4>
+              <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.6;">تواصل فوري مع الحرفي وحدد
+                الموعد بدقائق.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex; align-items:flex-start; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+            <div
+              style="width:44px; height:44px; min-width:44px; background:rgba(245,158,11,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <i class="fas fa-star" style="color:#F59E0B;"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px;">تقييمات حقيقية</h4>
+              <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.6;">آراء العملاء الحقيقيين تساعدك
+                في اختيار الأفضل.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex; align-items:flex-start; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+            <div
+              style="width:44px; height:44px; min-width:44px; background:rgba(139,92,246,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <i class="fas fa-map-marker-alt" style="color:#8B5CF6;"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px;">قريب منك</h4>
+              <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.6;">ابحث حسب مدينتك وحيّك للحصول
+                على حرفي قريب.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex; align-items:flex-start; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+            <div
+              style="width:44px; height:44px; min-width:44px; background:rgba(236,72,153,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <i class="fas fa-mobile-alt" style="color:#EC4899;"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px;">تطبيق الهاتف</h4>
+              <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.6;">متوفر على Android وiOS مع
+                تجربة سلسة ومتكاملة.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex; align-items:flex-start; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+            <div
+              style="width:44px; height:44px; min-width:44px; background:rgba(6,182,212,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <i class="fas fa-lock" style="color:#06B6D4;"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px;">آمن ومحمي</h4>
+              <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.6;">بياناتك محمية بتشفير Firebase
+                من Google.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Banner -->
+        <div style="
+        margin-top:56px; padding:48px 32px; text-align:center;
+        background:linear-gradient(135deg,#1E3A5F 0%,#2563EB 100%);
+        border-radius:24px;
+        box-shadow: 0 20px 60px rgba(37,99,235,0.25);
+        position:relative; overflow:hidden;
+      ">
+          <div
+            style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; background:rgba(245,158,11,0.08);">
+          </div>
+          <div
+            style="position:absolute; bottom:-60px; left:-30px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.05);">
+          </div>
+          <h3 style="font-size:1.6rem; font-weight:900; color:#fff; margin-bottom:12px; position:relative;">ابدأ الآن
+            مجاناً 🎉</h3>
+          <p style="color:rgba(255,255,255,0.75); margin-bottom:28px; position:relative;">انضم إلى آلاف المستخدمين الذين
+            يجدون حرفيهم المثالي عبر منصة الحريفي</p>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; position:relative;">
+            <button onclick="showAuthModal('register')" style="
+            padding:14px 34px; border-radius:12px;
+            background:linear-gradient(135deg,#F59E0B,#D97706);
+            color:#0b121f; font-size:1rem; font-weight:900;
+            border:none; cursor:pointer;
+            font-family:'Cairo',sans-serif;
+            box-shadow:0 6px 20px rgba(245,158,11,0.4);
+          "><i class="fas fa-user-plus"></i> إنشاء حساب مجاني</button>
+            <button onclick="showAuthModal('login')" style="
+            padding:14px 28px; border-radius:12px;
+            background:rgba(255,255,255,0.12);
+            color:#fff; font-size:1rem; font-weight:700;
+            border:1.5px solid rgba(255,255,255,0.25); cursor:pointer;
+            font-family:'Cairo',sans-serif;
+          "><i class="fas fa-sign-in-alt"></i> لدي حساب بالفعل</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FOOTER ═════════════════════════════════════════════════════════════ -->
+    <footer
+      style="background:#060d19; padding:24px 20px; text-align:center; font-family:'Cairo',sans-serif; border-top:1px solid rgba(255,255,255,0.07);">
+      <p style="color:rgba(255,255,255,0.4); font-size:0.85rem;">
+        © 2025 منصة الحريفي المغربي · جميع الحقوق محفوظة
+        <span style="margin:0 10px;">|</span>
+        <a href="#" onclick="showAuthModal('login')" style="color:#F59E0B; text-decoration:none;">تسجيل الدخول</a>
+        <span style="margin:0 10px;">|</span>
+        <a href="#" onclick="showAuthModal('register')" style="color:#F59E0B; text-decoration:none;">إنشاء حساب</a>
+      </p>
+    </footer>
+
+    <!-- ══ AUTH MODAL ════════════════════════════════════════════════════════ -->
+    <div id="auth-modal-overlay" style="
+    display:none; position:fixed; inset:0; z-index:99999;
+    background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+    font-family:'Cairo','Segoe UI',sans-serif;
+    padding:20px;
+  " onclick="if(event.target===this)closeAuthModal()">
+
+      <div style="
+      background:#0f1a2e;
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:24px;
+      padding:36px 32px;
+      width:100%; max-width:440px;
+      position:relative;
+      box-shadow:0 24px 64px rgba(0,0,0,0.6);
+      animation: modalSlideIn 0.3s ease;
+    ">
+        <!-- Close -->
+        <button onclick="closeAuthModal()" style="
+        position:absolute; top:16px; left:16px;
+        width:36px; height:36px; border-radius:50%;
+        background:rgba(255,255,255,0.08);
+        border:none; color:#fff; cursor:pointer; font-size:1rem;
+      ">✕</button>
+
+        <!-- Logo -->
+        <div style="text-align:center; margin-bottom:24px;">
+          <div
+            style="width:54px; height:54px; background:linear-gradient(135deg,#1E3A5F,#2563EB); border-radius:16px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; box-shadow:0 8px 24px rgba(37,99,235,0.4);">
+            <i class="fas fa-tools" style="color:#F59E0B; font-size:22px;"></i>
+          </div>
+          <h3 id="modal-auth-title" style="font-size:1.3rem; font-weight:900; color:#fff; margin-bottom:4px;">مرحباً بك
+          </h3>
+          <p id="modal-auth-subtitle" style="color:rgba(255,255,255,0.5); font-size:0.9rem;">سجّل دخولك للاستفادة من
+            المنصة</p>
+        </div>
+
+        <!-- Tabs -->
+        <div
+          style="display:flex; background:rgba(255,255,255,0.05); border-radius:12px; padding:4px; margin-bottom:24px; gap:4px;">
+          <button id="modal-tab-login" onclick="switchModalTab('login')" style="
+          flex:1; padding:10px; border-radius:9px; border:none; cursor:pointer;
+          background:linear-gradient(135deg,#1E3A5F,#2563EB);
+          color:#fff; font-weight:800; font-size:0.9rem;
+          font-family:'Cairo',sans-serif;
+        "><i class="fas fa-sign-in-alt"></i> دخول</button>
+          <button id="modal-tab-register" onclick="switchModalTab('register')" style="
+          flex:1; padding:10px; border-radius:9px; border:none; cursor:pointer;
+          background:transparent; color:rgba(255,255,255,0.5);
+          font-weight:700; font-size:0.9rem;
+          font-family:'Cairo',sans-serif;
+        "><i class="fas fa-user-plus"></i> تسجيل</button>
+        </div>
+
+        <div id="authAlertMessage"
+          style="display:none; padding:12px 16px; border-radius:12px; font-size:0.9rem; margin-bottom:18px; text-align:right;">
+        </div>
+
+        <!-- Login Form -->
+        <div id="authForm-login" class="modal-auth-form">
+          <div style="margin-bottom:16px;">
+            <label for="authLoginEmail"
+              style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;"><i
+                class="fas fa-envelope" style="color:#F59E0B;"></i> البريد الإلكتروني</label>
+            <input type="email" id="authLoginEmail" class="form-input" placeholder="example@email.com"
+              style="width:100%; box-sizing:border-box;" />
+          </div>
+          <div style="margin-bottom:20px;">
+            <label for="authLoginPassword"
+              style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;"><i
+                class="fas fa-lock" style="color:#F59E0B;"></i> كلمة المرور</label>
+            <input type="password" id="authLoginPassword" class="form-input" placeholder="••••••••"
+              style="width:100%; box-sizing:border-box;" />
+          </div>
+          <button class="auth-gate-btn btn-auth-primary" onclick="authWebEmailLogin()"
+            style="width:100%; margin-bottom:14px;">
+            <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+          </button>
+          <button class="auth-gate-btn btn-auth-google" onclick="authWebGoogleLogin()"
+            style="width:100%; margin-bottom:10px;">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+              style="width:18px;height:18px;" />
+            الدخول بواسطة Google
+          </button>
+          <div style="text-align:center; margin-top:8px;">
+            <button class="auth-gate-link" onclick="showAuthModal('reset')"
+              style="font-size:0.85rem; color:rgba(255,255,255,0.5);">نسيت كلمة المرور؟</button>
+          </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="authForm-register" class="modal-auth-form" style="display:none;">
+          <div style="margin-bottom:14px;">
+            <label for="authRegName"
+              style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;"><i
+                class="fas fa-user" style="color:#F59E0B;"></i> الاسم الكامل</label>
+            <input type="text" id="authRegName" class="form-input" placeholder="مثال: محمد العلوي..."
+              style="width:100%; box-sizing:border-box;" />
+          </div>
+          <div style="margin-bottom:14px;">
+            <label for="authRegPhone"
+              style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;"><i
+                class="fas fa-phone" style="color:#F59E0B;"></i> رقم الهاتف</label>
+            <input type="tel" id="authRegPhone" class="form-input" placeholder="06XXXXXXXX"
+              style="width:100%; box-sizing:border-box;" />
+          </div>
+          <div style="margin-bottom:14px;">
+            <label for="authRegEmail"
+              style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;"><i
+                class="fas fa-envelope" style="color:#F59E0B;"></i> البريد الإلكتروني</label>
+            <input type="email" id="authRegEmail" class="form-input" placeholder="example@email.com"
+              style="width:100%; box-sizing:border-box;" />
+          </div>
+          <div style="margin-bottom:14px;">
+            <label for="authRegPassword"
+              style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;"><i
+                class="fas fa-lock" style="color:#F59E0B;"></i> كلمة المرور (6 أحرف على الأقل)</label>
+            <input type="password" id="authRegPassword" class="form-input" placeholder="••••••••"
+              style="width:100%; box-sizing:border-box;" />
+          </div>
+          <div
+            style="margin-bottom:16px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:12px; padding:12px 16px;">
+            <label
+              style="display:flex; align-items:center; gap:10px; cursor:pointer; color:rgba(255,255,255,0.8); font-size:0.9rem; font-weight:700;">
+              <input type="checkbox" id="authRegIsArtisan" onchange="toggleArtisanFields(this)"
+                style="width:18px; height:18px; accent-color:#F59E0B;" />
+              <span><i class="fas fa-wrench" style="color:#F59E0B;"></i> أنا حرفي وأريد تسجيل خدماتي</span>
+            </label>
+          </div>
+          <div id="authArtisanSection" style="display:none;">
+            <div style="margin-bottom:14px;">
+              <label for="authArtisanCity"
+                style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;">المدينة</label>
+              <select id="authArtisanCity" class="form-input" style="width:100%; box-sizing:border-box;">
+                <option value="casablanca">الدار البيضاء</option>
+                <option value="rabat">الرباط</option>
+                <option value="marrakech">مراكش</option>
+                <option value="fes">فاس</option>
+                <option value="tanger">طنجة</option>
+                <option value="meknes">مكناس</option>
+                <option value="agadir">أغادير</option>
+                <option value="tetouan">تطوان</option>
+                <option value="oujda">وجدة</option>
+                <option value="kenitra">القنيطرة</option>
+                <option value="safi">آسفي</option>
+              </select>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label for="authArtisanDistrict"
+                style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;">الحي
+                / المنطقة</label>
+              <input type="text" id="authArtisanDistrict" class="form-input" placeholder="مثال: أكدال / المعاريف..."
+                style="width:100%; box-sizing:border-box;" />
+            </div>
+            <div style="margin-bottom:14px;">
+              <label for="authArtisanJob"
+                style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;">المهنة
+                / التخصص</label>
+              <select id="authArtisanJob" class="form-input" style="width:100%; box-sizing:border-box;">
+                <option value="plumber">سباك (بلومبي)</option>
+                <option value="electrician">كهربائي (تريسيان)</option>
+                <option value="carpenter">نجار</option>
+                <option value="painter">دهان (صباغ)</option>
+                <option value="builder">عامل بناء</option>
+                <option value="tiler">تركيب بلاط (زلايجي)</option>
+                <option value="blacksmith">حداد</option>
+                <option value="ac-technician">فني تكييف وتبريد</option>
+              </select>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label for="authArtisanDesc"
+                style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;">نبذة
+                عن خدماتك</label>
+              <textarea id="authArtisanDesc" class="form-input" rows="2"
+                placeholder="اكتب وصفاً قصيراً لخبرتك وخدماتك..." style="width:100%; box-sizing:border-box;"></textarea>
+            </div>
+          </div>
+          <button class="auth-gate-btn btn-auth-primary" onclick="authWebEmailRegister()" style="width:100%;">
+            <i class="fas fa-user-plus"></i> إنشاء حساب جديد
+          </button>
+        </div>
+
+        <!-- Reset Form -->
+        <div id="authForm-reset" class="modal-auth-form" style="display:none;">
+          <p
+            style="color:rgba(255,255,255,0.65); font-size:0.9rem; text-align:right; margin-bottom:16px; line-height:1.6;">
+            أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور.</p>
+          <div style="margin-bottom:20px;">
+            <label for="authResetEmail"
+              style="display:block; font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px; text-align:right;"><i
+                class="fas fa-envelope" style="color:#F59E0B;"></i> البريد الإلكتروني</label>
+            <input type="email" id="authResetEmail" class="form-input" placeholder="example@email.com"
+              style="width:100%; box-sizing:border-box;" />
+          </div>
+          <button class="auth-gate-btn btn-auth-primary" onclick="handlePasswordReset()"
+            style="width:100%; margin-bottom:10px;">
+            <i class="fas fa-paper-plane"></i> إرسال رابط إعادة التعيين
+          </button>
+          <button class="auth-gate-link" onclick="switchModalTab('login')"
+            style="width:100%; text-align:center; color:rgba(255,255,255,0.5);">
+            <i class="fas fa-arrow-right"></i> العودة إلى تسجيل الدخول
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── 1.5 EMAIL VERIFICATION BLOCKER ────────────────────────────────────── -->
+  <div id="email-verification-blocker" class="hidden">
+    <div class="auth-gate-card">
+      <div class="auth-gate-logo" style="color: var(--accent-color);"><i class="fas fa-envelope-open-text"></i></div>
+      <div class="auth-gate-title">تأكيد البريد الإلكتروني</div>
+      <div class="auth-subtitle auth-gate-subtitle">Vérification de l'adresse e-mail</div>
+
+      <div id="verifyAlertMessage"
+        style="display: none; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 18px; text-align: right;">
+      </div>
+
+      <div class="auth-gate-content active"
+        style="text-align: center; color: var(--muted-color); font-size: 0.95rem; line-height: 1.6;">
+        <p style="margin-bottom: 15px;">
+          لقد أرسلنا رابط تفعيل إلى بريدك الإلكتروني. يرجى التحقق من علبة الوارد والضغط على الرابط لتفعيل حسابك.
+        </p>
+        <div
+          style="background: rgba(30, 58, 95, 0.4); border: 1.5px solid var(--border-color); padding: 10px 16px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; color: #ffffff; word-break: break-all;"
+          id="verifyEmailDisplay">
+          -
+        </div>
+
+        <button class="auth-gate-btn btn-auth-primary" onclick="webCheckVerificationStatus()" id="btnCheckVerify"
+          style="margin-bottom: 12px;">
+          <i class="fas fa-check-circle"></i> لقد قمت بالتفعيل ✓
+        </button>
+
+        <button class="auth-gate-btn" onclick="webResendVerification()" id="btnResendVerify"
+          style="background: var(--surface-alt); border: 1.5px solid var(--border-color); color: #ffffff; margin-bottom: 20px;">
+          <i class="fas fa-paper-plane"></i> إعادة إرسال رابط التفعيل
+        </button>
+
+        <button class="auth-gate-link" onclick="webLogoutFromVerification()"
+          style="color: var(--danger-color); font-weight: bold;">
+          <i class="fas fa-sign-out-alt"></i> تسجيل الخروج (Se déconnecter)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 2. MAIN APPLICATION INTERFACE (Shown when logged in) ───────────────── -->
+  <div id="user-interface" style="display: none;">
+    <header>
+      <div class="header-slider-container" id="headerSlider">
+        <div class="header-slide active"
+          style="background-image: url('https://i.pinimg.com/1200x/d9/73/7e/d9737e959b85b4ad2dab1af348d53f42.jpg');">
+        </div>
+        <div class="header-slide"
+          style="background-image: url('https://i.pinimg.com/1200x/9b/a6/63/9ba66308c769be13c54c16d3ec014659.jpg');">
+        </div>
+        <div class="header-slide"
+          style="background-image: url('https://i.pinimg.com/1200x/b1/13/f8/b113f8d0ebe8193500194c8c311ea42b.jpg');">
+        </div>
+        <div class="header-slide"
+          style="background-image: url('https://i.pinimg.com/1200x/90/bd/64/90bd6432aafd43ad56120cca165e59c5.jpg');">
+        </div>
+      </div>
+      <!-- Header overlay removed and text removed as per user request to show images clearly -->
+    </header>
+
+    <nav>
+      <button id="homeBtn" class="active" onclick="navigateToSection('home')">
+        <i class="fas fa-home"></i> الرئيسية
+      </button>
+      <!-- Client: post a work request -->
+      <button id="addRequestBtn" onclick="navigateToSection('addRequest')">
+        <i class="fas fa-tools"></i> أطلب حرفياً
+      </button>
+      <!-- Artisan: see client requests board -->
+      <button id="clientRequestsBoardBtn" style="display:none;" onclick="navigateToSection('clientRequestsBoard')">
+        <i class="fas fa-clipboard-list"></i> طلبات العملاء
+      </button>
+      <button id="artisansBtn" onclick="navigateToSection('artisans')">
+        <i class="fas fa-users"></i> الحرفيون
+      </button>
+      <!-- Artisan registration -->
+      <button id="artisanRegisterBtn" onclick="navigateToSection('artisanRegister')">
+        <i class="fas fa-id-card"></i> انضمام كحرفي
+      </button>
+      <a href="https://www.appcreator24.com/app3711027-8je0bp" target="_blank" class="download-btn">
+        <i class="fab fa-android"></i> تحميل التطبيق
+      </a>
+      <button id="aboutUsBtn" onclick="navigateToSection('aboutUs')">
+        <i class="fas fa-info-circle"></i> من نحن
+      </button>
+      <button id="conditionsBtn" onclick="navigateToSection('conditions')">
+        <i class="fas fa-file-contract"></i> شروط الاستخدام
+      </button>
+      <!-- SECURE ADMIN TAB BUTTON (Admin only) -->
+      <button id="adminTabBtn" style="display: none;" onclick="navigateToSection('admin')">
+        <i class="fas fa-shield-alt"></i> لوحة التحكم 🛡️
+      </button>
+      <button id="accountBtn" onclick="openProfileModal()">
+        <i class="fas fa-user-circle"></i>
+        <span id="navAccountLabel">حسابي</span>
+        <span id="navAuthBadge"></span>
+      </button>
+    </nav>
+
+    <div class="container">
+      <!-- ── SECTION A: Home ── -->
+      <section id="homeSection" class="section active">
+        <h2><i class="fas fa-home"></i> <span id="dynamicGreeting">مرحباً بك في منصة "الحريفي" المغربية</span></h2>
+        <p>صلتكم الحقيقية بأمهر الحرفيين والمهنيين المعتمدين في المغرب. اعثر على الحريفي المناسب لمنطقتك وتواصل معه
+          مباشرة في سرعة وأمان.</p>
+
+        <div class="alert alert-success">
+          <i class="fas fa-info-circle" style="font-size: 1.4rem; color: var(--success-color);"></i>
+          <div>
+            <strong>دليلك السريع لاستخدام المنصة</strong>
+            <p>قم بإنشاء طلب يصف العطل الذي تواجهه ليتم مراجعته، أو ابحث مباشرة في قائمة الحرفيين حسب مدينتك لطلب الخدمة
+              فوراً.</p>
+          </div>
+        </div>
+
+        <!-- Animated Stats Counter -->
+        <div class="stats-section reveal">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-number" data-target="500">300</div>
+            <div class="stat-label">حرفي معتمد</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-city"></i></div>
+            <div class="stat-number" data-target="15">+100</div>
+            <div class="stat-label">مدينة مغربية</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+            <div class="stat-number" data-target="2000">+1000</div>
+            <div class="stat-label">عميل راضٍ</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-number" data-target="4800">+500</div>
+            <div class="stat-label">تقييم إيجابي</div>
+          </div>
+        </div>
+
+        <div class="features-grid reveal">
+          <div class="feature-box">
+            <div class="feature-icon"><i class="fas fa-search-location"></i></div>
+            <h3>تحديد جغرافي دقيق</h3>
+            <p>ابحث عن الحرفيين الأقرب إليك حسب المدينة والمنطقة لتوفير الوقت.</p>
+          </div>
+          <div class="feature-box">
+            <div class="feature-icon"><i class="fas fa-star-half-alt"></i></div>
+            <h3>تقييمات ومراجعات حقيقية</h3>
+            <p>اقرأ آراء العملاء السابقين وشارك تقييمك الخاص لضمان الشفافية.</p>
+          </div>
+          <div class="feature-box">
+            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>حرفيون معتمدون</h3>
+            <p>نقوم بالتحقق من الهوية المهنية لجميع الحرفيين قبل تفعيل حساباتهم.</p>
+          </div>
+        </div>
+
+        <h3 class="reveal-left"><i class="fas fa-briefcase"></i> تصنيفات المهن المتوفرة</h3>
+        <div class="profession-grid reveal-scale">
+          <div class="profession-item" onclick="filterByJob('plumber')">
+            <div class="profession-icon"><i class="fas fa-wrench"></i></div>
+            <h4>سباك</h4>
+          </div>
+          <div class="profession-item" onclick="filterByJob('electrician')">
+            <div class="profession-icon"><i class="fas fa-bolt"></i></div>
+            <h4>كهربائي</h4>
+          </div>
+          <div class="profession-item" onclick="filterByJob('carpenter')">
+            <div class="profession-icon"><i class="fas fa-hammer"></i></div>
+            <h4>نجار</h4>
+          </div>
+          <div class="profession-item" onclick="filterByJob('painter')">
+            <div class="profession-icon"><i class="fas fa-paint-roller"></i></div>
+            <h4>صباغ</h4>
+          </div>
+          <div class="profession-item" onclick="filterByJob('builder')">
+            <div class="profession-icon"><i class="fas fa-trowel"></i></div>
+            <h4>عامل بناء</h4>
+          </div>
+          <div class="profession-item" onclick="filterByJob('tiler')">
+            <div class="profession-icon"><i class="fas fa-border-all"></i></div>
+            <h4>زلايجي</h4>
+          </div>
+          <div class="profession-item" onclick="filterByJob('blacksmith')">
+            <div class="profession-icon"><i class="fas fa-toolbox"></i></div>
+            <h4>حداد</h4>
+          </div>
+          <div class="profession-item" onclick="filterByJob('ac-technician')">
+            <div class="profession-icon"><i class="fas fa-fan"></i></div>
+            <h4>تكييف وتبريد</h4>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 40px;"><i class="fas fa-images"></i> معرض الأعمال المنجزة</h3>
+        <div class="slider-container">
+          <div class="slider" id="gallerySlider">
+            <div class="slide"><img src="https://i.pinimg.com/736x/fe/27/9f/fe279f0646c23c24ce85bc7fec951c7d.jpg"
+                alt="Home Repair 1" />
+              <div class="slide-caption">صيانة صحية وسباكة منزلية متكاملة</div>
+            </div>
+            <div class="slide"><img src="https://i.pinimg.com/1200x/3d/90/47/3d9047307edf877c11d90e8f2882c3a0.jpg"
+                alt="Home Repair 2" />
+              <div class="slide-caption">تركيبات كهربائية حديثة وفق معايير السلامة</div>
+            </div>
+            <div class="slide"><img src="https://i.pinimg.com/1200x/fd/63/eb/fd63eb2ddcae6ef39da5dec4759142c4.jpg"
+                alt="Home Repair 3" />
+              <div class="slide-caption">أعمال نجارة وديكورات خشبية راقية</div>
+            </div>
+            <div class="slide"><img src="https://i.pinimg.com/736x/55/66/da/5566dafe2e28250353311a911902ea63.jpg"
+                alt="Home Repair 4" />
+              <div class="slide-caption">صباغة ودهانات حديثة تواكب العصر</div>
+            </div>
+            <div class="slide"><img src="https://i.pinimg.com/1200x/19/8f/01/198f011e60312fb34861712fd84999c7.jpg"
+                alt="Home Repair 5" />
+              <div class="slide-caption">حرفيون موثوقون في خدمتك على مدار الساعة</div>
+            </div>
+          </div>
+          <div class="slider-nav">
+            <button onclick="changeSlide(-1)"><i class="fas fa-chevron-right"></i></button>
+            <button onclick="changeSlide(1)"><i class="fas fa-chevron-left"></i></button>
+          </div>
+          <div class="slider-dots" id="galleryDots">
+            <span class="dot active" onclick="setSlide(0)"></span>
+            <span class="dot" onclick="setSlide(1)"></span>
+            <span class="dot" onclick="setSlide(2)"></span>
+          </div>
+        </div>
+
+        <div class="testimonials-container">
+          <h3><i class="fas fa-comments"></i> شهادات عملائنا</h3>
+          <div class="testimonial">
+            <p>"لقد كان من الصعب العثور على سباك موثوق في منطقتي بالدار البيضاء، ولكن عبر المنصة عثرت على حريفي محترف
+              أنهى العمل في وقت قياسي وبسعر ممتاز."</p>
+            <div class="testimonial-author">
+              <img src="https://ui-avatars.com/api/?name=أمين+الخالدي&amp;background=1E3A5F&amp;color=fff" alt="عميل" />
+              <div><strong>أمين الخالدي</strong>
+                <p>الدار البيضاء</p>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial">
+            <p>"خدمة رائعة جداً، تواصلت مع كهربائي معتمد، وجاء في الموعد وأصلح العطل بالكامل. تطبيق وموقع ضروري لكل
+              مغربي."</p>
+            <div class="testimonial-author">
+              <img src="https://ui-avatars.com/api/?name=فاطمة+سعدان&amp;background=F59E0B&amp;color=fff" alt="عميلة" />
+              <div><strong>فاطمة سعدان</strong>
+                <p>الرباط</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic top artisans -->
+        <h3 style="margin-top: 40px;"><i class="fas fa-award"></i> الحرفيون المتميزون</h3>
+        <p style="margin-bottom: 20px;">نخبة من الحرفيين الحاصلين على أعلى التقييمات من زبائننا.</p>
+        <div id="topArtisansContainer" class="features-grid">
+          <div class="empty-state">جاري تحميل الحرفيين المتميزين...</div>
+        </div>
+
+        <div class="partners-section">
+          <h3><i class="fas fa-handshake"></i> شركاء النجاح</h3>
+          <div class="partners-grid">
+            <img src="https://i.pinimg.com/1200x/45/20/dd/4520ddfc56208707045c56232e946f7f.jpg" class="partner-logo"
+              alt="وزارة الصناعة" />
+            <img src="https://i.pinimg.com/1200x/b2/f8/28/b2f828513f21444829a619ce563d4d4e.jpg" class="partner-logo"
+              alt="مؤسسة التعاون" />
+            <img src="https://i.pinimg.com/736x/61/58/08/615808f0d7f64f23ca9f24bde15382b8.jpg" class="partner-logo"
+              alt="غرفة الصناعة التقليدية" />
+            <img src="https://i.pinimg.com/736x/80/9e/58/809e584045e5ffd8fdc3e622897495a7.jpg" class="partner-logo"
+              alt="غرفة الصناعة التقليدية" />
+            <img src="https://i.pinimg.com/1200x/e9/99/26/e999265766765896659a7bb93365e656.jpg" class="partner-logo"
+              alt="غرفة الصناعة التقليدية" />
+            <img src="https://i.pinimg.com/736x/9a/c7/7a/9ac77a18934cc68b4bd0dc8111035521.jpg" class="partner-logo"
+              alt="غرفة الصناعة التقليدية" />
+            <img src="https://i.pinimg.com/1200x/e3/7b/c1/e37bc1b916940281aaf70e2fc52fe2e0.jpg" class="partner-logo"
+              alt="غرفة الصناعة التقليدية" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SECTION B: Client Request (Post a job request) ── -->
+      <section id="addRequestSection" class="section">
+        <h2><i class="fas fa-tools"></i> أطلب حرفياً الآن</h2>
+        <p style="margin-bottom: 8px;">هل تحتاج إلى تصليح أو صيانة؟ اكتب طلبك وسيتواصل معك أفضل الحرفيين في منطقتك.</p>
+        <div
+          style="background: rgba(245,158,11,0.08); border: 1.5px solid var(--accent-color); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; text-align: right; direction: rtl;">
+          <strong style="color: var(--accent-color);"><i class="fas fa-info-circle"></i> ملاحظة :</strong>
+          <span style="color: var(--muted-color); font-size: 0.9rem;"> هذه الصفحة مخصصة للزبائن الراغبين في طلب خدمة
+            حرفي. أنت حرفي وتريد الانضمام للمنصة؟ انتقل إلى <a href="#" onclick="navigateToSection('artisanRegister')"
+              style="color: var(--accent-color); text-decoration: underline;">انضمام كحرفي</a>.</span>
+        </div>
+
+        <!-- Block artisans from posting client requests -->
+        <div id="addReqArtisanBlock"
+          style="display:none; background: rgba(239,68,68,0.08); border: 1.5px solid var(--danger-color); border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align:right; direction:rtl;">
+          <strong style="color: #ff8a8a;"><i class="fas fa-exclamation-triangle"></i> أنت مسجل كحرفي</strong>
+          <p style="color: var(--muted-color); font-size: 0.9rem; margin-top: 6px;">هذا النموذج مخصص للزبائن فقط. بصفتك
+            حرفياً، يمكنك الاطلاع على طلبات العملاء وقبول العمل من صفحة <a href="#"
+              onclick="navigateToSection('clientRequestsBoard')" style="color: var(--accent-color);">طلبات العملاء</a>.
+          </p>
+        </div>
+
+        <div id="addReqFormWrapper">
+          <div id="requestAlert" style="display: none;" class="alert alert-success"></div>
+
+          <div class="form-group">
+            <label><i class="fas fa-phone-alt"></i> رقم هاتفك (للتواصل معك) <span
+                style="color:var(--danger-color);">*</span></label>
+            <input type="tel" id="reqPhone" class="form-control" placeholder="مثال: 0612345678" dir="ltr" />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-map-marker-alt"></i> المدينة</label>
+            <select id="reqCity" class="form-control">
+              <option value="casablanca">الدار البيضاء</option>
+              <option value="rabat">الرباط</option>
+              <option value="marrakech">مراكش</option>
+              <option value="fes">فاس</option>
+              <option value="tanger">طنجة</option>
+              <option value="meknes">مكناس</option>
+              <option value="agadir">أغادير</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-map-marked"></i> الحي / المنطقة <span
+                style="color:var(--danger-color);">*</span></label>
+            <input type="text" id="reqDistrict" class="form-control"
+              placeholder="مثال: المعاريف، الرياض، الداوديات..." />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-briefcase"></i> نوع الحرفي المطلوب</label>
+            <select id="reqJob" class="form-control">
+              <option value="plumber">سباك (بلومبي)</option>
+              <option value="electrician">كهربائي (تريسيان)</option>
+              <option value="carpenter">نجار</option>
+              <option value="painter">دهان (صباغ)</option>
+              <option value="builder">عامل بناء</option>
+              <option value="tiler">تركيب بلاط (زلايجي)</option>
+              <option value="blacksmith">حداد</option>
+              <option value="ac-technician">فني تكييف</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-heading"></i> عنوان الطلب (باختصار) <span
+                style="color:var(--danger-color);">*</span></label>
+            <input type="text" id="reqSubject" class="form-control" placeholder="مثال: إصلاح تسرب مياه تحت الحوض" />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-edit"></i> وصف المشكلة بالتفصيل <span
+                style="color:var(--danger-color);">*</span></label>
+            <textarea id="reqDescription" class="form-control" rows="4"
+              placeholder="يرجى كتابة تفاصيل العمل المطلوب بدقة ليسهل على الحرفيين فهم المشكلة..."></textarea>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-camera"></i> إرفاق صورة العطل (اختياري)</label>
+            <input type="file" id="reqImage" class="form-control" accept="image/*" />
+          </div>
+
+          <button class="btn btn-accent" id="submitRequestBtn" onclick="submitNewRequest()">
+            <i class="fas fa-paper-plane"></i> إرسال الطلب
+          </button>
+        </div>
+      </section>
+
+      <!-- ── SECTION C: Artisans List ── -->
+      <section id="artisansSection" class="section">
+        <h2><i class="fas fa-users"></i> دليل الحرفيين المعتمدين</h2>
+        <p style="margin-bottom: 20px;">ابحث واتصل مباشرة بأفضل الحرفيين المؤهلين في منطقتك الجغرافية.</p>
+
+        <div class="search-filters">
+          <div class="search-container">
+            <input type="text" id="searchInput" class="form-control search-input"
+              placeholder="ابحث باسم الحرفي، الحي، أو تفاصيل مهاراته..." oninput="triggerArtisanFilter()" />
+            <i class="fas fa-search search-icon"></i>
+          </div>
+
+          <div class="filters">
+            <div class="form-group">
+              <label><i class="fas fa-map-marker-alt"></i> تصفية بالمدينة</label>
+              <select id="filterCity" class="form-control" onchange="triggerArtisanFilter()">
+                <option value="">الكل</option>
+                <option value="casablanca">الدار البيضاء</option>
+                <option value="rabat">الرباط</option>
+                <option value="marrakech">مراكش</option>
+                <option value="fes">فاس</option>
+                <option value="tanger">طنجة</option>
+                <option value="meknes">مكناس</option>
+                <option value="agadir">أغادير</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-briefcase"></i> تصفية بالمهنة</label>
+              <select id="filterJob" class="form-control" onchange="triggerArtisanFilter()">
+                <option value="">الكل</option>
+                <option value="plumber">سباك (بلومبي)</option>
+                <option value="electrician">كهربائي (تريسيان)</option>
+                <option value="carpenter">نجار</option>
+                <option value="painter">دهان (صباغ)</option>
+                <option value="builder">عامل بناء</option>
+                <option value="tiler">تركيب بلاط</option>
+                <option value="blacksmith">حداد</option>
+                <option value="ac-technician">فني تكييف</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="approvedArtisansList">
+          <div class="empty-state">جاري تحميل دليل الحرفيين...</div>
+        </div>
+      </section>
+
+      <!-- ── SECTION NEW: Artisan Registration ── -->
+      <section id="artisanRegisterSection" class="section">
+        <h2><i class="fas fa-id-card"></i> انضمام كحرفي معتمد</h2>
+        <p style="margin-bottom: 8px;">انضم لأكبر شبكة حرفيين في المغرب واستقبل طلبات العمل من الزبائن مباشرة في منطقتك.
+        </p>
+        <div
+          style="background: rgba(245,158,11,0.08); border: 1.5px solid var(--accent-color); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; text-align: right; direction: rtl;">
+          <strong style="color: var(--accent-color);"><i class="fas fa-info-circle"></i> كيف يعمل؟</strong>
+          <span style="color: var(--muted-color); font-size: 0.9rem;"> أكمل النموذج → يراجعه فريق الإدارة → تظهر بطاقتك
+            في الدليل العام. العملية لا تستغرق أكثر من 24 ساعة.</span>
+        </div>
+
+        <div id="artisanRegisterAlert" style="display: none;" class="alert alert-success"></div>
+        <div id="artisanRegisterStatusBlock" style="display:none;"></div>
+
+        <div id="artisanRegisterFormWrapper">
+          <div class="form-group">
+            <label><i class="fas fa-user"></i> الاسم الكامل <span style="color:var(--danger-color);">*</span></label>
+            <input type="text" id="arName" class="form-control" placeholder="اسمك الكامل" />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-phone-alt"></i> رقم هاتف العمل <span
+                style="color:var(--danger-color);">*</span></label>
+            <input type="tel" id="arPhone" class="form-control" placeholder="مثال: 0612345678" dir="ltr" />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-briefcase"></i> الحرفة / التخصص <span
+                style="color:var(--danger-color);">*</span></label>
+            <select id="arJob" class="form-control">
+              <option value="">-- اختر مهنتك --</option>
+              <option value="plumber">سباك (بلومبي)</option>
+              <option value="electrician">كهربائي (تريسيان)</option>
+              <option value="carpenter">نجار</option>
+              <option value="painter">دهان (صباغ)</option>
+              <option value="builder">عامل بناء</option>
+              <option value="tiler">تركيب بلاط (زلايجي)</option>
+              <option value="blacksmith">حداد</option>
+              <option value="ac-technician">فني تكييف</option>
+              <option value="home-nurse">ممرض منزلي</option>
+              <option value="housekeeper">عامل نظافة</option>
+              <option value="handyman">تقني صيانة عامة</option>
+              <option value="gardener">بستاني</option>
+              <option value="locksmith">قفلجي</option>
+              <option value="glazier">فني زجاج ونوافذ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-map-marker-alt"></i> المدينة <span
+                style="color:var(--danger-color);">*</span></label>
+            <select id="arCity" class="form-control">
+              <option value="">-- اختر المدينة --</option>
+              <option value="casablanca">الدار البيضاء</option>
+              <option value="rabat">الرباط</option>
+              <option value="marrakech">مراكش</option>
+              <option value="fes">فاس</option>
+              <option value="tanger">طنجة</option>
+              <option value="meknes">مكناس</option>
+              <option value="agadir">أغادير</option>
+              <option value="tetouan">تطوان</option>
+              <option value="oujda">وجدة</option>
+              <option value="kenitra">القنيطرة</option>
+              <option value="safi">آسفي</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-map-marked"></i> الحي / المنطقة <span
+                style="color:var(--danger-color);">*</span></label>
+            <input type="text" id="arDistrict" class="form-control" placeholder="مثال: المعاريف، أكدال..." />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-edit"></i> وصف خدماتك وخبرتك <span
+                style="color:var(--danger-color);">*</span></label>
+            <textarea id="arDesc" class="form-control" rows="4"
+              placeholder="اكتب وصفاً لخدماتك، سنواتك في المجال، ونوع الأعمال التي تتقنها..."></textarea>
+          </div>
+
+          <button class="btn btn-accent" id="submitArtisanRegisterBtn" onclick="submitArtisanRegistration()"
+            style="background: linear-gradient(135deg, var(--accent-color), #D97706); border: none; color: #0b121f; font-weight: bold;">
+            <i class="fas fa-paper-plane"></i> إرسال طلب الانضمام
+          </button>
+        </div>
+      </section>
+
+      <!-- ── SECTION NEW: Client Requests Board (for artisans) ── -->
+       <section id="clientRequestsBoardSection" class="section">
+
+        <div class="crb-header">
+          <div class="crb-title-row">
+            <div class="crb-icon-circle"><i class="fas fa-bullhorn"></i></div>
+            <div>
+              <h2 style="margin:0; font-size:1.6rem; font-weight:900;">بورصة طلبات العملاء</h2>
+              <p style="margin:4px 0 0; color:rgba(255,255,255,0.6); font-size:0.95rem;">اطلع على طلبات الزبائن المعتمدة وتواصل معهم مباشرة</p>
+            </div>
+          </div>
+          <div class="crb-stats-row" id="crb-stats-row">
+            <div class="crb-stat-pill"><i class="fas fa-clipboard-check"></i> <span id="crb-count">--</span> طلب</div>
+          </div>
+        </div>
+
+        <div id="crb-authBlock"
+          style="display:none; background: rgba(239,68,68,0.08); border: 1.5px solid var(--danger-color); border-radius: 16px; padding: 24px; margin-bottom: 20px; text-align:center; direction:rtl;">
+          <i class="fas fa-lock" style="font-size:3rem; color:#ff8a8a; margin-bottom:12px; display:block;"></i>
+          <strong style="color:#ff8a8a; font-size:1.2rem;">محتوى مخصص للحرفيين</strong>
+          <p style="color: var(--muted-color); font-size: 0.95rem; margin-top: 8px;">يجب تسجيل الدخول كحرفي معتمد للاطلاع على طلبات العملاء.</p>
+        </div>
+
+        <div id="crb-content">
+          <div class="crb-filters-bar">
+            <div class="crb-filter-group">
+              <i class="fas fa-map-marker-alt" style="color:var(--accent-color);"></i>
+              <select id="crbFilterCity" class="crb-select" onchange="filterClientRequests()">
+                <option value="">جميع المدن</option>
+                <option value="casablanca">الدار البيضاء</option>
+                <option value="rabat">الرباط</option>
+                <option value="marrakech">مراكش</option>
+                <option value="fes">فاس</option>
+                <option value="tanger">طنجة</option>
+                <option value="meknes">مكناس</option>
+                <option value="agadir">أغادير</option>
+              </select>
+            </div>
+            <div class="crb-filter-group">
+              <i class="fas fa-briefcase" style="color:var(--accent-color);"></i>
+              <select id="crbFilterJob" class="crb-select" onchange="filterClientRequests()">
+                <option value="">جميع المهن</option>
+                <option value="plumber">سباك</option>
+                <option value="electrician">كهربائي</option>
+                <option value="carpenter">نجار</option>
+                <option value="painter">دهان</option>
+                <option value="builder">بناء</option>
+                <option value="tiler">بلاط</option>
+                <option value="blacksmith">حداد</option>
+                <option value="ac-technician">تكييف</option>
+              </select>
+            </div>
+          </div>
+          <div id="clientRequestsList" class="crb-cards-grid">
+            <div class="crb-loading-state"><i class="fas fa-spinner fa-spin"></i> جاري تحميل الطلبات...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SECTION D: About Us ── -->
+      <section id="aboutUsSection" class="section">
+        <h2><i class="fas fa-info-circle"></i> من نحن - منصة الحريفي</h2>
+        <div style="font-size: 1.05rem; color: var(--text-color);">
+          <p style="margin-bottom: 15px;">منصة "الحريفي" هي مبادرة وطنية تهدف إلى رقمنة وتطوير قطاع الصناعة التقليدية
+            والخدمات المنزلية في المملكة المغربية.</p>
+          <p style="margin-bottom: 15px;">نحن نؤمن بأن الحرفي المغربي يمتلك مهارات استثنائية تستحق منصة تليق بها، وتوفر
+            في ذات الوقت للزبائن وسيلة حديثة، موثوقة، وسريعة للتواصل دون وسطاء.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 15px; color: #ffffff;">قيمنا الأساسية :</h3>
+          <ul style="list-style: inside square; padding-right: 20px; margin-bottom: 20px;">
+            <li style="margin-bottom: 10px;"><strong>الثقة :</strong> التحقق من هويات الحرفيين والزبائن لضمان معاملات
+              آمنة.</li>
+            <li style="margin-bottom: 10px;"><strong>الشفافية :</strong> تقييمات الزبائن حقيقية ولا يتم تعديلها.</li>
+            <li style="margin-bottom: 10px;"><strong>القرب الجغرافي :</strong> ربط أسرع بين أقرب مزود خدمة والزبون.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── SECTION E: Conditions ── -->
+      <section id="conditionsSection" class="section">
+        <h2><i class="fas fa-file-contract"></i> شروط الاستخدام والأمان</h2>
+        <div style="font-size: 0.95rem; color: var(--text-color);">
+          <p style="margin-bottom: 12px;">مرحباً بكم في منصة الحريفي. باستخدامكم للموقع أو التطبيق، فإنكم توافقون على
+            الشروط التالية :</p>
+          <h4 style="margin: 15px 0 8px; color: #ffffff;">1. طبيعة المنصة</h4>
+          <p style="margin-bottom: 12px;">منصة الحريفي هي وسيط تقني يربط بين الحرفيين والزبائن. نحن لا نتحمل مسؤولية أي
+            اتفاقات مادية أو جودة عمل تتم بشكل مباشر بين الطرفين، إلا أننا نقوم بحظر الحسابات المسيئة فوراً بناءً على
+            الشكاوى.</p>
+          <h4 style="margin: 15px 0 8px; color: #ffffff;">2. سلوك المستخدم</h4>
+          <p style="margin-bottom: 12px;">يجب على الزبائن كتابة أوصاف دقيقة للمشكلات وعدم كتابة أرقام هواتفهم في الأوصاف
+            العامة. يجب على الحرفيين الالتزام بالمواعيد والصدق والأسعار المعقولة.</p>
+          <h4 style="margin: 15px 0 8px; color: #ffffff;">3. حذف البيانات والحساب</h4>
+          <p style="margin-bottom: 12px;">يحق لأي مستخدم حذف حسابه نهائياً وبياناته المخزنة في أي وقت من خلال لوحة
+            التحكم الشخصية ("حسابي").</p>
+        </div>
+      </section>
+
+      <!-- ── SECURE SECTION F: SECURE ADMIN PANEL (ADMIN ONLY) ── -->
+      <section id="adminSection" class="section">
+        <h2><i class="fas fa-shield-alt"></i> لوحة التحكم والعمليات الإدارية 🛡️</h2>
+        <p style="margin-bottom: 25px; color: var(--accent-light);">إدارة طلبات الانضمام، الحرفيين النشطين، والبيانات
+          وتصدير التقارير الرسمية.</p>
+
+        <!-- Admin Stats Cards Grid -->
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <div class="admin-stat-label">المستخدمين المسجلين</div>
+            <div class="admin-stat-num" id="statUsersCount">0</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-label">الحرفيين المعتمدين</div>
+            <div class="admin-stat-num" id="statArtisansCount">0</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-label">طلبات انضمام معلقة</div>
+            <div class="admin-stat-num" id="statPendingRequests">0</div>
+          </div>
+        </div>
+
+        <!-- Subtabs internally inside Admin -->
+        <div class="admin-subtabs">
+          <button class="admin-subtab active" onclick="switchAdminTab('requests', this)">طلبات انضمام الحرفيين</button>
+          <button class="admin-subtab" onclick="switchAdminTab('clientRequests', this)">طلبات العملاء <span
+              id="adminClientReqBadge"
+              style="background:var(--danger-color); color:#fff; border-radius:10px; padding:1px 7px; font-size:0.75rem; margin-right:4px;">0</span></button>
+          <button class="admin-subtab" onclick="switchAdminTab('artisans', this)">إدارة الحرفيين</button>
+          <button class="admin-subtab" onclick="switchAdminTab('reports', this)">التقارير</button>
+        </div>
+
+        <!-- Admin Subtab 1: Pending Join Requests -->
+        <div id="adminTab-requests" class="admin-subcontent active">
+          <h3 class="reviews-section-title"><i class="fas fa-hourglass-half"></i> طلبات التسجيل الجديدة الحالية</h3>
+          <div id="adminRequestsList">
+            <div class="empty-state">جاري تحميل طلبات الانضمام المعلقة...</div>
+          </div>
+        </div>
+
+        <!-- Admin Subtab: Client Requests -->
+        <div id="adminTab-clientRequests" class="admin-subcontent">
+          <h3 class="reviews-section-title"><i class="fas fa-clipboard-list"></i> طلبات العملاء المعلقة (تحتاج موافقة)
+          </h3>
+          <div id="adminClientRequestsList">
+            <div class="empty-state">جاري التحميل...</div>
+          </div>
+        </div>
+
+        <!-- Admin Subtab 2: Manage Registered Artisans -->
+        <div id="adminTab-artisans" class="admin-subcontent">
+          <h3 class="reviews-section-title"><i class="fas fa-user-cog"></i> التحكم بالحرفيين النشطين في المنصة</h3>
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>الحرفي</th>
+                  <th>المهنة</th>
+                  <th>المدينة والحي</th>
+                  <th>التقييم</th>
+                  <th>حالة التوثيق</th>
+                  <th>حالة التميز</th>
+                  <th>العمليات والتحكم</th>
+                </tr>
+              </thead>
+              <tbody id="adminArtisansTableBody">
+                <!-- Loaded via firestore -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Admin Subtab 3: Data Exports (Moved from user search) -->
+        <div id="adminTab-reports" class="admin-subcontent">
+          <h3 class="reviews-section-title"><i class="fas fa-file-download"></i> استخراج التقارير والملفات الإدارية</h3>
+          <p style="margin-bottom: 20px; color: var(--muted-color);">تصدير قاعدة بيانات الحرفيين المعتمدين محلياً بصيغة
+            PDF أو Excel لعمليات الأرشفة والمتابعة.</p>
+          <div class="reports-container"
+            style="margin: 0; padding: 20px; background: var(--surface-alt); border-radius: 16px; border: 1.5px solid var(--border-color);">
+            <button class="btn btn-report" onclick="exportArtisansPDF()"><i class="fas fa-file-pdf"></i> تصدير قاعدة
+              البيانات PDF</button>
+            <button class="btn btn-report btn-accent" onclick="exportArtisansExcel()"><i class="fas fa-file-excel"></i>
+              تصدير قاعدة البيانات Excel</button>
+          </div>
+        </div>
+
+        <!-- Secure Admin Diagnosis and Auto-Healing Panel -->
+        <div id="admin-debug-panel"
+          style="margin-top: 30px; padding: 20px; background: rgba(239, 68, 68, 0.08); border: 2.5px dashed var(--danger-color); border-radius: 16px;">
+          <h3 style="color: var(--danger-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-bug"></i> لوحة تشخيص الصلاحيات الذاتية (أدوات المشرف)
+          </h3>
+          <p style="font-size: 0.9rem; color: var(--muted-color); margin-bottom: 15px;">
+            تساعدك هذه اللوحة على فحص الصلاحيات وتهيئة حسابك كمسؤول مباشر على قاعدة البيانات لحل خطأ "Missing or
+            insufficient permissions".
+          </p>
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-size: 0.9rem; color: white; margin-bottom: 20px;">
+            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <strong>معرف المستخدم الحالي (UID):</strong>
+              <div id="debug-uid"
+                style="font-family: monospace; color: var(--accent-light); margin-top: 5px; word-break: break-all;">جاري
+                جلب المعرف...</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <strong>بريدك الإلكتروني الحالي:</strong>
+              <div id="debug-email" style="color: var(--accent-light); margin-top: 5px;">جاري جلب البريد...</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <strong>حالة المشرف في الواجهة (JS):</strong>
+              <div id="debug-js-role" style="font-weight: bold; margin-top: 5px;">جاري التحقق...</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <strong>حالة الحساب في السيرفر (Firestore):</strong>
+              <div id="debug-firestore-role" style="font-weight: bold; margin-top: 5px;">جاري الفحص...</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-auth-primary" onclick="forceHealingAdminDoc()"
+              style="padding: 10px 20px; font-size: 0.9rem; background: linear-gradient(135deg, var(--danger-color), #dc2626); color: white; border-radius: 10px; border:none; cursor:pointer; font-weight:700;">
+              <i class="fas fa-hand-holding-medical"></i> إصلاح صلاحيات الحساب وتفعيل دور المشرف في السيرفر
+            </button>
+            <button class="btn btn-auth-google" onclick="refreshDebugLogs()"
+              style="padding: 10px 20px; font-size: 0.9rem; border-radius: 10px; border: 1.5px solid var(--border-color); cursor:pointer;">
+              <i class="fas fa-sync-alt"></i> تحديث التشخيص
+            </button>
+            <button class="btn btn-auth-primary" onclick="claimAdminViaBackend()"
+              style="padding: 10px 20px; font-size: 0.9rem; background: var(--gold-gradient); color: #0b121f; border-radius: 10px; border:none; cursor:pointer; font-weight:700;">
+              <i class="fas fa-server"></i> تفعيل صلاحية المشرف عبر السيرفر (Backend)
+            </button>
+          </div>
+          <div id="debug-healing-status" style="margin-top: 12px; font-size: 0.88rem; font-weight: 700; display: none;">
+          </div>
+          <p style="margin-top:10px; font-size:0.8rem; color: var(--muted-color);">
+            الطريقة الموصى بها: الزر الذهبي أعلاه يستدعي خادم Node.js (backend/) الذي يستخدم صلاحيات Firebase Admin
+            الحقيقية لمنحك دور المشرف بشكل آمن، بدل الاعتماد فقط على كتابة مباشرة من المتصفح.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>منصة الحريفي</h3>
+          <p>دليلكم المتكامل للربط بين أمهر الحرفيين المغربيين والزبائن. جودة، أمان، وسرعة في التنفيذ.</p>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>روابط سريعة</h3>
+          <ul class="footer-links">
+            <li><a href="#" onclick="navigateToSection('home')">الرئيسية</a></li>
+            <li><a href="#" onclick="navigateToSection('addRequest')">طلب جديد</a></li>
+            <li><a href="#" onclick="navigateToSection('artisans')">دليل الحرفيين</a></li>
+            <li><a href="#" onclick="navigateToSection('conditions')">شروط الاستخدام</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>اتصل بنا</h3>
+          <ul class="footer-links">
+            <li><i class="fas fa-envelope"></i> support@hraifi.com</li>
+            <li><i class="fas fa-phone"></i> +212 600 000000</li>
+            <li><i class="fas fa-map-marker-alt"></i> الدار البيضاء، المغرب</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&#169; 2026 دليل الحرفيين المغربي (منصة الحريفي). جميع الحقوق محفوظة.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ─── 3. ACCOUNT PROFILE MODAL ────────────────────────────────────────────── -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeProfileModal()">✕</button>
+      <div class="auth-profile-header">
+        <div class="auth-avatar" id="authAvatarEl">👤</div>
+        <h3 class="auth-profile-name" id="authDisplayName" style="margin-bottom: 4px; color: #ffffff;">المستخدم</h3>
+        <p class="auth-profile-email" id="authDisplayEmail">example@email.com</p>
+        <div class="auth-profile-role" id="authDisplayRole">زبون</div>
+      </div>
+
+      <button class="auth-gate-btn btn-auth-google" id="profileVerifyBtn" onclick="authWebSendVerification()"
+        style="display:none; border-color: var(--warning-color); color: var(--warning-color);">
+        ✉️ إرسال بريد التحقق للحساب
+      </button>
+
+      <button class="auth-gate-btn" id="webProfileVerificationPromo" onclick="openVerificationModal()"
+        style="display:none; background: linear-gradient(135deg, var(--accent-color), #D97706); border: none; color: #0b121f; font-weight: bold; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); margin-bottom: 12px;">
+        👑 احصل على شارة التوثيق والتميز
+      </button>
+
+      <hr style="border:none; border-top:1px solid var(--border-color); margin:18px 0;" />
+
+      <button class="auth-gate-btn btn-auth-google" onclick="authWebLogout()">
+        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+      </button>
+
+      <button class="auth-gate-btn btn-danger" onclick="authWebDeleteAccount()" style="margin-top:10px;">
+        <i class="fas fa-trash-alt"></i> حذف الحساب نهائياً
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── 4. ARTISAN VERIFICATION INFO MODAL ────────────────────────────────────── -->
+  <div id="verificationInfoModal" class="modal">
+    <div class="modal-content" style="max-width: 500px; padding: 25px 20px;">
+      <button class="close-modal" onclick="closeVerificationModal()">✕</button>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 10px;"><i
+            class="fas fa-shield-alt"></i></div>
+        <h3 style="color: #ffffff; font-size: 1.4rem; font-weight: bold;">شارة التوثيق والتميز 👑</h3>
+        <p style="color: var(--muted-color); font-size: 0.85rem; margin-top: 4px;">ضاعف طلباتك وزد ثقة عملائك</p>
+      </div>
+
+      <div style="max-height: 400px; overflow-y: auto; padding-left: 5px; text-align: right; direction: rtl;">
+        <h4
+          style="color: var(--accent-color); font-weight: bold; margin-bottom: 12px; border-right: 3px solid var(--accent-color); padding-right: 8px;">
+          لماذا أقوم بتوثيق حسابي؟</h4>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+          <div style="font-size: 1.2rem; color: var(--accent-color);"><i class="fas fa-check-circle"></i></div>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 3px;">ثقة مضاعفة مع
+              الزبناء</strong>
+            <span style="color: var(--muted-color); font-size: 0.85rem; line-height: 1.5;">الحسابات الموثقة تحصل على ثقة
+              فورية. الزبناء يفضلون دائماً التعامل مع الحرفيين الحاملين للشارة الذهبية لضمان الجودة والأمان.</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+          <div style="font-size: 1.2rem; color: var(--accent-color);"><i class="fas fa-arrow-up"></i></div>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 3px;">أولوية الظهور في
+              الصدارة</strong>
+            <span style="color: var(--muted-color); font-size: 0.85rem; line-height: 1.5;">يظهر اسمك في مقدمة نتائج
+              البحث في الموقع والتطبيق، مما يزيد من فرص رؤية ملفك الشخصي قبل الحرفيين الآخرين.</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+          <div style="font-size: 1.2rem; color: var(--accent-color);"><i class="fas fa-phone-alt"></i></div>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 3px;">زيادة عدد الاتصالات
+              والطلبات</strong>
+            <span style="color: var(--muted-color); font-size: 0.85rem; line-height: 1.5;">الحرفيون الموثقون يتلقون
+              اتصالات وطلبات أكثر بـ 3 أضعاف مقارنة بالحسابات غير الموثقة.</span>
+          </div>
+        </div>
+
+        <h4
+          style="color: var(--accent-color); font-weight: bold; margin-bottom: 12px; border-right: 3px solid var(--accent-color); padding-right: 8px;">
+          خطوات الحصول على الشارة</h4>
+
+        <div style="margin-bottom: 15px;">
+          <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 5px;">1. تواصل مع إدارة
+            المنصة</strong>
+          <span
+            style="color: var(--muted-color); font-size: 0.85rem; line-height: 1.5; display: block; margin-bottom: 10px;">تواصل
+            معنا عبر أحد الأزرار التالية لتأكيد هويتك :</span>
+          <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+            <a href="https://wa.me/212667704963?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%85%D9%86%D8%B5%D8%A9%20%D8%A7%D9%84%D8%AD%D8%B1%D9%8A%D9%81%D9%8A%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%AA%D9%88%D8%AB%D9%8A%D9%82%20%D8%AD%D8%B3%D8%A7%D8%A8%D9%8A."
+              target="_blank" class="auth-gate-btn"
+              style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 0.85rem; border: none; text-decoration: none; border-radius: 10px; flex: 1;">
+              <i class="fab fa-whatsapp"></i> واتساب
+            </a>
+            <a href="tel:+212667704963" class="auth-gate-btn"
+              style="background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 0.85rem; border: 1px solid var(--border-color); text-decoration: none; border-radius: 10px; flex: 1;">
+              <i class="fas fa-phone-alt"></i> اتصل بنا
+            </a>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 5px;">2. أداء رسوم التفعيل
+            (مبلغ رمزي)</strong>
+          <span
+            style="color: var(--muted-color); font-size: 0.85rem; line-height: 1.5; display: block; margin-bottom: 10px;">أرسل
+            الرسوم عبر إحدى الطرق التالية :</span>
+
+          <div
+            style="background: rgba(30,58,95,0.4); border: 1.5px solid var(--border-color); padding: 12px; border-radius: 14px; margin-bottom: 12px;">
+            <strong style="color: #ffffff; font-size: 0.9rem; display: block; margin-bottom: 4px;">🏦 التحويل البنكي
+              (Virement)</strong>
+            <span style="color: var(--muted-color); font-size: 0.8rem; display: block;">البنك: CIH Bank / التجاري وفا
+              بنك</span>
+            <span style="color: var(--muted-color); font-size: 0.8rem; display: block;">الاسم: منصة الحريفي
+              المغربي</span>
+            <span
+              style="color: var(--accent-color); font-size: 0.8rem; font-weight: bold; display: block; margin-top: 4px;">RIB:
+              230 780 1234567890 1234 567</span>
+          </div>
+
+          <div
+            style="background: rgba(30,58,95,0.4); border: 1.5px solid var(--border-color); padding: 12px; border-radius: 14px;">
+            <strong style="color: #ffffff; font-size: 0.9rem; display: block; margin-bottom: 4px;">💸 وكالات تحويل
+              الأموال</strong>
+            <span style="color: var(--muted-color); font-size: 0.8rem; display: block; margin-bottom: 6px;">يمكنك
+              الإرسال باسم المسؤول عبر أي وكالة قريبة منك :</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span
+                style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; color: #ffffff;">Wafacash</span>
+              <span
+                style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; color: #ffffff;">CashPlus</span>
+              <span
+                style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; color: #ffffff;">BaridCash</span>
+              <span
+                style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; color: #ffffff;">Damane
+                Cash</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 5px;">3. إرسال إثبات
+            الدفع</strong>
+          <span style="color: var(--muted-color); font-size: 0.85rem; line-height: 1.5;">أرسل لنا صورة وصل التحويل عبر
+            الواتساب، وسنقوم بتفعيل شارة التوثيق في حسابك فوراً!</span>
+        </div>
+      </div>
+
+      <button class="auth-gate-btn btn-auth-primary" onclick="closeVerificationModal()" style="margin-top: 15px;">
+        موافق
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── 4. FLOATING SUPPORT FAB WIDGET ──────────────────────────────────────── -->
+  <div class="support-fab-container">
+    <div id="support-fab" onclick="toggleSupportMenu()">
+      <i class="fas fa-headset"></i>
+    </div>
+    <div class="support-menu" id="supportMenu">
+      <a href="https://wa.me/212600000000" target="_blank" title="تواصل عبر WhatsApp" style="color: #25D366;"><i
+          class="fab fa-whatsapp"></i></a>
+      <a href="mailto:support@hraifi.com" title="أرسل بريداً إلكترونياً" style="color: #ea4335;"><i
+          class="fas fa-envelope"></i></a>
+      <a href="tel:+212600000000" title="اتصل بنا هاتفياً" style="color: #34b7f1;"><i class="fas fa-phone-alt"></i></a>
+    </div>
+  </div>
+
+  <!-- ─── 5. FLOATING AI CHATBOT WIDGET ───────────────────────────────────────── -->
+  <div class="ai-chat-fab" id="chatbot-fab" onclick="toggleChatbotWidget()">
+    <i class="fas fa-robot"></i>
+  </div>
+
+  <div class="ai-chat-widget" id="chatbotWidget">
+    <div class="ai-chat-header">
+      <span>المعلم الرقمي 🤖</span>
+      <div class="header-buttons">
+        <button onclick="clearChatbotMessages()" title="مسح المحادثة"><i class="fas fa-trash-alt"></i></button>
+        <button onclick="toggleChatbotWidget()" title="إغلاق"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+
+    <div class="ai-chat-messages" id="chatbotMessages">
+      <div class="chat-message ai">
+        <div class="avatar">🤖</div>
+        <div class="message-content">
+          مرحباً بك! أنا المعلم الرقمي لمنصة الحريفي. كيف يمكنني مساعدتك اليوم في العثور على حرفيين أو تصفح الخدمات؟
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-chat-input">
+      <input type="text" id="chatbotInput" placeholder="اكتب سؤالك هنا..." onkeypress="handleChatbotKeypress(event)" />
+      <button onclick="sendChatbotMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/security-utils.js"></script>
+  <script src="js/landing.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/gallery.js"></script>
+  <script src="js/artisans.js"></script>
+  <script src="js/client-requests.js"></script>
+  <script src="js/reviews.js"></script>
+  <script src="js/exporters.js"></script>
+  <script src="js/widgets.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/admin-debug.js"></script>
+  <script src="js/bootstrap.js"></script>
+</body>
+</html>

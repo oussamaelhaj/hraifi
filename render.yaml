@@ -1,0 +1,32 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# In the Render dashboard: New > Blueprint > select this GitHub repo, and
+# both services below get created together. Env vars marked sync: false
+# must be filled in manually in the Render dashboard (never committed).
+services:
+  - type: web
+    name: hraifi-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+      - key: ADMIN_BOOTSTRAP_EMAILS
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://www.7raifi.ma,https://hraifi-frontend.onrender.com
+
+  - type: web
+    name: hraifi-frontend
+    runtime: static
+    rootDir: frontend
+    plan: free
+    buildCommand: ""
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

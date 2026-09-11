@@ -1,0 +1,8 @@
+{
+  "name": "hraifi-dev-scripts",
+  "private": true,
+  "description": "Optional local dev tooling — not deployed. Run `npm install` here, then `npx playwright install chromium` once, then `node smoke-test.cjs` (with the frontend served on :8791) to catch console/JS errors after editing frontend/.",
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}
